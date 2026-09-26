@@ -3,6 +3,7 @@ import Image from "next/image";
 import Hero from "@/components/Hero";
 import ProjectCard from "@/components/ProjectCard";
 import Reveal from "@/components/Reveal";
+import Workbench from "@/components/Workbench";
 import { listProjects, listServices, getSiteSettings } from "@/lib/data";
 
 export default async function HomePage() {
@@ -16,6 +17,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <Workbench />
       <Hero
         title={settings.hero_title}
         subtitle={settings.hero_subtitle}
@@ -23,8 +25,11 @@ export default async function HomePage() {
         imageAlt="Garde-corps inox BHAR INOX sur terrasse — réalisation"
       />
 
+      {/* Panneaux-échantillons flottant sur l'établi acier */}
+      <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 pb-16 pt-10 sm:gap-8 sm:px-6 sm:pt-14">
+
       {/* ---------- Métiers ---------- */}
-      <section className="mx-auto max-w-7xl px-5 py-24 sm:px-8" aria-labelledby="metiers-title">
+      <section className="sample-plate steel-rule bg-white px-6 py-16 sm:px-10 sm:py-20" aria-labelledby="metiers-title">
         <Reveal>
           <div className="flex flex-wrap items-end justify-between gap-6">
             <div>
@@ -66,8 +71,8 @@ export default async function HomePage() {
       </section>
 
       {/* ---------- Sélection de réalisations (grille asymétrique) ---------- */}
-      <section className="bg-white py-24" aria-labelledby="realisations-title">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8">
+      <section className="sample-plate steel-rule bg-white px-6 py-16 sm:px-10 sm:py-20" aria-labelledby="realisations-title">
+        <div>
           <Reveal>
             <p className="eyebrow">Réalisations</p>
             <div className="mt-3 flex flex-wrap items-end justify-between gap-6">
@@ -110,8 +115,8 @@ export default async function HomePage() {
       </section>
 
       {/* ---------- Processus ---------- */}
-      <section className="on-dark brushed-dark py-24" aria-labelledby="process-title">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8">
+      <section className="sample-plate sample-plate-dark steel-rule on-dark brushed-dark px-6 py-16 sm:px-10 sm:py-20" aria-labelledby="process-title">
+        <div>
           <Reveal>
             <p className="eyebrow !text-steel-light">Notre manière de travailler</p>
             <h2 id="process-title" className="display mt-3 max-w-2xl text-4xl text-white sm:text-5xl">
@@ -139,12 +144,12 @@ export default async function HomePage() {
       </section>
 
       {/* ---------- Présentation entreprise ---------- */}
-      <section className="mx-auto max-w-7xl px-5 py-24 sm:px-8" aria-labelledby="apropos-title">
+      <section className="sample-plate steel-rule bg-white px-6 py-16 sm:px-10 sm:py-20" aria-labelledby="apropos-title">
         <div className="grid items-center gap-12 lg:grid-cols-2">
           <Reveal>
             <p className="eyebrow">L&apos;entreprise</p>
             <h2 id="apropos-title" className="display mt-3 text-4xl text-charcoal sm:text-5xl">
-              {settings.about_intro.slice(0, 0) === "" ? "BHAR INOX" : "BHAR INOX"}
+              BHAR INOX
             </h2>
             <p className="mt-6 max-w-lg leading-relaxed text-steel">
               {settings.about_intro}
@@ -168,8 +173,8 @@ export default async function HomePage() {
       </section>
 
       {/* ---------- CTA final ---------- */}
-      <section className="on-dark bg-royal py-20" aria-labelledby="cta-title">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-8 px-5 sm:px-8">
+      <section className="sample-plate sample-plate-dark steel-rule on-dark bg-royal px-6 py-14 sm:px-10 sm:py-16" aria-labelledby="cta-title">
+        <div className="flex flex-wrap items-center justify-between gap-8">
           <Reveal>
             <h2 id="cta-title" className="display max-w-xl text-3xl text-white sm:text-4xl">
               Un projet en inox ? Parlons-en.
@@ -189,6 +194,7 @@ export default async function HomePage() {
           </Reveal>
         </div>
       </section>
+      </div>
     </>
   );
 }

@@ -6,6 +6,7 @@ import type {
   Service,
   QuoteRequest,
   SiteSettings,
+  ContactMessage,
 } from "./types";
 import { QUOTE_STATUS_ORDER, type QuoteStatus } from "./types";
 

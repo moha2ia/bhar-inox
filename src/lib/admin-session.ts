@@ -65,7 +65,7 @@ export const SESSION_MAX_AGE = MAX_AGE;
 /** Identifiants administrateur (variables d'environnement). */
 export function getAdminCredentials(): { email: string; password: string } {
   return {
-    email: process.env.ADMIN_EMAIL ?? "admin@bhar-inox.ma",
+    email: process.env.ADMIN_EMAIL ?? "elhasnaouimohamedd@gmail.com",
     password: process.env.ADMIN_PASSWORD ?? "",
   };
 }

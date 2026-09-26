@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1200" viewBox="0 0 1600 1200" role="img" aria-label="Illustration de démonstration — porte d'entrée en acier inoxydable">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#262B30"/>
+      <stop offset="1" stop-color="#1A1D21"/>
+    </linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2E353B"/>
+      <stop offset="1" stop-color="#22272C"/>
+    </linearGradient>
+    <linearGradient id="steelDoor" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#9AA8A6"/>
+      <stop offset="0.18" stop-color="#D7DEDD"/>
+      <stop offset="0.42" stop-color="#8D9C9A"/>
+      <stop offset="0.62" stop-color="#C2CBCA"/>
+      <stop offset="0.85" stop-color="#7C8B89"/>
+      <stop offset="1" stop-color="#A9B4B3"/>
+    </linearGradient>
+    <linearGradient id="frame" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#B7C1C0"/>
+      <stop offset="0.5" stop-color="#6E7D7B"/>
+      <stop offset="1" stop-color="#98A6A4"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0.6" y2="1">
+      <stop offset="0" stop-color="#3A4C8F" stop-opacity="0.85"/>
+      <stop offset="0.55" stop-color="#1716A5" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#101040" stop-opacity="0.8"/>
+    </linearGradient>
+    <linearGradient id="handle" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#E8EDEC"/>
+      <stop offset="0.5" stop-color="#9FAEB0"/>
+      <stop offset="1" stop-color="#DDE5E4"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Fond architectural -->
+  <rect width="1600" height="1200" fill="url(#wall)"/>
+  <rect y="930" width="1600" height="270" fill="url(#floor)"/>
+  <line x1="0" y1="930" x2="1600" y2="930" stroke="#3A4249" stroke-width="3"/>
+  <!-- Dallage -->
+  <g stroke="#343B42" stroke-width="2">
+    <line x1="200" y1="1200" x2="520" y2="930"/>
+    <line x1="560" y1="1200" x2="760" y2="930"/>
+    <line x1="920" y1="1200" x2="1000" y2="930"/>
+    <line x1="1280" y1="1200" x2="1240" y2="930"/>
+    <line x1="0" y1="1030" x2="1600" y2="1030" opacity="0.6"/>
+    <line x1="0" y1="1130" x2="1600" y2="1130" opacity="0.4"/>
+  </g>
+  <!-- Reflets muraux -->
+  <rect x="150" y="80" width="420" height="4" fill="#5C6C6A" opacity="0.35"/>
+  <rect x="1030" y="150" width="320" height="4" fill="#5C6C6A" opacity="0.25"/>
+
+  <!-- Encadrement mural -->
+  <rect x="380" y="120" width="840" height="830" fill="#12151A"/>
+
+  <!-- Dormant inox -->
+  <rect x="380" y="120" width="840" height="830" fill="none" stroke="url(#frame)" stroke-width="22"/>
+
+  <!-- Ouvrant gauche -->
+  <g>
+    <rect x="416" y="156" width="380" height="758" fill="url(#steelDoor)"/>
+    <rect x="416" y="156" width="380" height="758" fill="none" stroke="#5F6E6C" stroke-width="3"/>
+    <!-- Panneau verre dépoli -->
+    <rect x="452" y="200" width="308" height="300" fill="url(#glass)" opacity="0.9"/>
+    <rect x="452" y="200" width="308" height="300" fill="none" stroke="#C8D2D1" stroke-width="4" opacity="0.7"/>
+    <!-- Lignes d' brushed finish -->
+    <g stroke="#FFFFFF" stroke-width="1" opacity="0.14">
+      <line x1="440" y1="560" x2="772" y2="560"/>
+      <line x1="440" y1="590" x2="772" y2="590"/>
+      <line x1="440" y1="620" x2="772" y2="620"/>
+      <line x1="440" y1="650" x2="772" y2="650"/>
+      <line x1="440" y1="680" x2="772" y2="680"/>
+      <line x1="440" y1="710" x2="772" y2="710"/>
+      <line x1="440" y1="740" x2="772" y2="740"/>
+    </g>
+    <!-- Poignée verticale -->
+    <rect x="726" y="470" width="14" height="200" rx="7" fill="url(#handle)"/>
+    <rect x="718" y="460" width="30" height="14" rx="3" fill="#7E8D8B"/>
+    <rect x="718" y="666" width="30" height="14" rx="3" fill="#7E8D8B"/>
+    <!-- Serrure -->
+    <rect x="700" y="760" width="60" height="90" rx="4" fill="#6E7D7B"/>
+    <circle cx="730" cy="800" r="8" fill="#2A3138"/>
+    <rect x="722" y="820" width="16" height="6" rx="2" fill="#2A3138"/>
+  </g>
+
+  <!-- Ouvrant droit (légèrement ouvert) -->
+  <g>
+    <rect x="804" y="156" width="380" height="758" fill="url(#steelDoor)"/>
+    <rect x="804" y="156" width="380" height="758" fill="none" stroke="#5F6E6C" stroke-width="3"/>
+    <rect x="840" y="200" width="308" height="300" fill="url(#glass)" opacity="0.9"/>
+    <rect x="840" y="200" width="308" height="300" fill="none" stroke="#C8D2D1" stroke-width="4" opacity="0.7"/>
+    <g stroke="#FFFFFF" stroke-width="1" opacity="0.14">
+      <line x1="828" y1="560" x2="1160" y2="560"/>
+      <line x1="828" y1="590" x2="1160" y2="590"/>
+      <line x1="828" y1="620" x2="1160" y2="620"/>
+      <line x1="828" y1="650" x2="1160" y2="650"/>
+      <line x1="828" y1="680" x2="1160" y2="680"/>
+      <line x1="828" y1="710" x2="1160" y2="710"/>
+      <line x1="828" y1="740" x2="1160" y2="740"/>
+    </g>
+    <rect x="860" y="470" width="14" height="200" rx="7" fill="url(#handle)"/>
+    <rect x="852" y="460" width="30" height="14" rx="3" fill="#7E8D8B"/>
+    <rect x="852" y="666" width="30" height="14" rx="3" fill="#7E8D8B"/>
+  </g>
+
+  <!-- Pas de porte inox -->
+  <rect x="380" y="942" width="840" height="14" fill="#8D9C9A"/>
+
+  <!-- Végétation architecturale discrète -->
+  <g opacity="0.85">
+    <rect x="1210" y="700" width="90" height="240" fill="#2A3138"/>
+    <path d="M1255 700 q-40 -70 0 -130 q40 60 0 130" fill="#3D4A4C"/>
+    <path d="M1255 720 q-56 -50 -34 -110 q52 44 34 110" fill="#46554F"/>
+  </g>
+
+  <!-- Étiquette de démonstration -->
+  <g>
+    <rect x="40" y="1080" width="640" height="76" fill="#17191B" opacity="0.85"/>
+    <rect x="40" y="1080" width="6" height="76" fill="#1716A5"/>
+    <text x="76" y="1112" font-family="Arial, Helvetica, sans-serif" font-size="24" letter-spacing="4" fill="#9AA8A6">ILLUSTRATION DE DÉMONSTRATION</text>
+    <text x="76" y="1142" font-family="Arial, Helvetica, sans-serif" font-size="18" letter-spacing="2" fill="#5C6C6A">PORTE D'ENTRÉE INOX — PHOTOGRAPHIE AUTHENTIQUE À FOURNIR PAR BHAR INOX</text>
+  </g>
+</svg>

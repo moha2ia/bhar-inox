@@ -1,0 +1,275 @@
+@import "tailwindcss";
+
+/* ============================================================
+   BHAR INOX — Design tokens
+   Royal blue #1716A5 · Metallic grey #5C6C6A · White
+   Soft neutral #F5F6F7 · Charcoal #17191B
+   ============================================================ */
+
+@theme {
+  --color-royal: #1716a5;
+  --color-royal-hover: #131391;
+  --color-steel: #5c6c6a;
+  --color-steel-light: #8a9795;
+  --color-mist: #f5f6f7;
+  --color-charcoal: #17191b;
+  --color-charcoal-soft: #202326;
+  --color-line: #d9dedf;
+  --color-line-dark: #2e3134;
+
+  --font-display: "Archivo", "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+
+  --tracking-widest-xs: 0.18em;
+}
+
+/* ------------------------------------------------------------
+   Base
+   ------------------------------------------------------------ */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-mist);
+  color: var(--color-charcoal);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-royal);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-royal);
+  outline-offset: 2px;
+}
+
+.on-dark :focus-visible {
+  outline-color: #fff;
+}
+
+img {
+  max-width: 100%;
+}
+
+/* ------------------------------------------------------------
+   Editorial typography helpers
+   ------------------------------------------------------------ */
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.04;
+}
+
+.eyebrow {
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-steel);
+}
+
+.eyebrow-royal {
+  color: var(--color-royal);
+}
+
+/* ------------------------------------------------------------
+   Material-inspired details
+   ------------------------------------------------------------ */
+
+.hairline {
+  height: 1px;
+  background: var(--color-line);
+  border: none;
+}
+
+.hairline-dark {
+  height: 1px;
+  background: var(--color-line-dark);
+  border: none;
+}
+
+.steel-rule {
+  position: relative;
+  overflow: hidden;
+}
+
+.steel-rule::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--color-royal) 0 33.33%,
+    var(--color-steel) 33.33% 66.66%,
+    #e8ebec 66.66% 100%
+  );
+}
+
+.tech-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-steel);
+  font-weight: 500;
+}
+
+/* Subtle brushed-steel texture for dark sections */
+.brushed-dark {
+  background-color: var(--color-charcoal);
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 30%),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.016) 0 2px,
+      rgba(255, 255, 255, 0) 2px 6px
+    );
+}
+
+/* ------------------------------------------------------------
+   Buttons
+   ------------------------------------------------------------ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+  padding: 0.95rem 1.7rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.25s ease;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn-primary {
+  background: var(--color-royal);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: var(--color-royal-hover);
+}
+
+.btn-outline {
+  border-color: var(--color-steel);
+  color: var(--color-charcoal);
+  background: transparent;
+}
+
+.btn-outline:hover {
+  border-color: var(--color-charcoal);
+  background: rgba(23, 25, 27, 0.04);
+}
+
+.btn-outline-light {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #fff;
+  background: transparent;
+}
+
+.btn-outline-light:hover {
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn[disabled] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ------------------------------------------------------------
+   Cards & panels
+   ------------------------------------------------------------ */
+
+.panel {
+  background: #fff;
+  border: 1px solid var(--color-line);
+}
+
+.card-hover {
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 24px 48px -24px rgba(23, 22, 165, 0.18);
+}
+
+/* ------------------------------------------------------------
+   Forms
+   ------------------------------------------------------------ */
+
+.field-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-steel);
+  margin-bottom: 0.45rem;
+}
+
+.field {
+  width: 100%;
+  border: 1px solid var(--color-line);
+  background: #fff;
+  padding: 0.8rem 1rem;
+  font-size: 0.95rem;
+  color: var(--color-charcoal);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.field:focus {
+  outline: none;
+  border-color: var(--color-royal);
+  box-shadow: 0 0 0 3px rgba(23, 22, 165, 0.12);
+}
+
+.field-error {
+  border-color: #b42318;
+}
+
+.error-text {
+  color: #b42318;
+  font-size: 0.82rem;
+  margin-top: 0.35rem;
+}
+
+/* ------------------------------------------------------------
+   Reduced motion
+   ------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1200" viewBox="0 0 1600 1200" role="img" aria-label="Illustration de démonstration — porte-fenêtre à grand format en inox">
+  <defs>
+    <linearGradient id="d-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1E2633"/>
+      <stop offset="0.6" stop-color="#3A4C66"/>
+      <stop offset="1" stop-color="#71809A"/>
+    </linearGradient>
+    <linearGradient id="d-glass" x1="0" y1="0" x2="0.5" y2="1">
+      <stop offset="0" stop-color="#27407C"/>
+      <stop offset="0.5" stop-color="#1B2C5E"/>
+      <stop offset="1" stop-color="#12204A"/>
+    </linearGradient>
+    <linearGradient id="d-frame" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#B7C1C0"/>
+      <stop offset="0.5" stop-color="#6E7D7B"/>
+      <stop offset="1" stop-color="#98A6A4"/>
+    </linearGradient>
+    <linearGradient id="d-floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2C333A"/>
+      <stop offset="1" stop-color="#1E242A"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Façade et ciel crépusculaire -->
+  <rect width="1600" height="1000" fill="url(#d-sky)"/>
+  <rect y="1000" width="1600" height="200" fill="url(#d-floor)"/>
+  <line x1="0" y1="1000" x2="1600" y2="1000" stroke="#454F58" stroke-width="3"/>
+
+  <!-- Reflets de skyline dans le vitrage -->
+  <g opacity="0.35" fill="#0E1830">
+    <rect x="180" y="540" width="130" height="440"/>
+    <rect x="360" y="620" width="90" height="360"/>
+    <rect x="1100" y="560" width="150" height="420"/>
+    <rect x="1300" y="640" width="110" height="340"/>
+  </g>
+  <!-- Lumières de ville -->
+  <g fill="#C9D6E8" opacity="0.7">
+    <rect x="220" y="600" width="8" height="12"/>
+    <rect x="260" y="660" width="8" height="12"/>
+    <rect x="1140" y="620" width="8" height="12"/>
+    <rect x="1200" y="700" width="8" height="12"/>
+    <rect x="1330" y="690" width="8" height="12"/>
+  </g>
+
+  <!-- Baie à grand format -->
+  <g>
+    <rect x="160" y="180" width="1280" height="820" fill="url(#d-glass)"/>
+    <rect x="160" y="180" width="1280" height="820" fill="none" stroke="url(#d-frame)" stroke-width="26"/>
+
+    <!-- Deux panneaux coulissants -->
+    <line x1="800" y1="193" x2="800" y2="987" stroke="url(#d-frame)" stroke-width="16"/>
+    <!-- Traverse haute -->
+    <line x1="173" y1="380" x2="1427" y2="380" stroke="url(#d-frame)" stroke-width="10"/>
+
+    <!-- Poignée sur le panneau gauche -->
+    <rect x="756" y="560" width="12" height="180" rx="6" fill="#D7DEDD"/>
+    <rect x="748" y="550" width="28" height="12" rx="3" fill="#7E8D8B"/>
+    <rect x="748" y="738" width="28" height="12" rx="3" fill="#7E8D8B"/>
+
+    <!-- Reflet diagonal -->
+    <polygon points="260,180 420,180 220,1000 160,1000" fill="#FFFFFF" opacity="0.08"/>
+    <polygon points="520,180 610,180 400,1000 340,1000" fill="#FFFFFF" opacity="0.05"/>
+  </g>
+
+  <!-- Pas de porte et seuil inox -->
+  <rect x="148" y="992" width="1304" height="16" fill="#8D9C9A"/>
+
+  <!-- Piscine miroir au premier plan -->
+  <g>
+    <rect x="0" y="1060" width="1600" height="140" fill="#152238"/>
+    <line x1="0" y1="1060" x2="1600" y2="1060" stroke="#5C6C6A" stroke-width="3"/>
+    <g stroke="#2E4470" stroke-width="3" opacity="0.8">
+      <line x1="0" y1="1100" x2="1600" y2="1100"/>
+      <line x1="0" y1="1150" x2="1600" y2="1150"/>
+    </g>
+    <!-- Reflet de la baie dans l'eau -->
+    <rect x="160" y="1070" width="1280" height="90" fill="#1B2C5E" opacity="0.5"/>
+    <line x1="800" y1="1070" x2="800" y2="1160" stroke="#8D9C9A" stroke-width="6" opacity="0.5"/>
+  </g>
+
+  <!-- Étiquette -->
+  <g>
+    <rect x="40" y="40" width="680" height="76" fill="#17191B" opacity="0.85"/>
+    <rect x="40" y="40" width="6" height="76" fill="#1716A5"/>
+    <text x="76" y="72" font-family="Arial, Helvetica, sans-serif" font-size="24" letter-spacing="4" fill="#9AA8A6">ILLUSTRATION DE DÉMONSTRATION</text>
+    <text x="76" y="102" font-family="Arial, Helvetica, sans-serif" font-size="18" letter-spacing="2" fill="#5C6C6A">PORTE-FENÊTRE INOX — PHOTOGRAPHIE AUTHENTIQUE À FOURNIR PAR BHAR INOX</text>
+  </g>
+</svg>

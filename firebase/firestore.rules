@@ -1,0 +1,37 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Lecture publique : contenus publiés uniquement.
+    // Toutes les écritures passent par le SDK Admin côté serveur
+    // (il contourne les règles) ; le client ne peut jamais écrire.
+    match /projects/{id} {
+      allow read: if resource.data.published == true;
+      allow write: if false;
+    }
+
+    match /services/{id} {
+      allow read: if resource.data.published == true;
+      allow write: if false;
+    }
+
+    match /site_settings/{doc} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Devis : lecture/écriture réservées au serveur (SDK Admin).
+    match /quote_requests/{id} {
+      allow read, write: if false;
+    }
+
+    match /quote_files/{id} {
+      allow read, write: if false;
+    }
+
+    // Compteurs de référence (BI-AAAA-####)
+    match /counters/{id} {
+      allow read, write: if false;
+    }
+  }
+}

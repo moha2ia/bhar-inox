@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1200" viewBox="0 0 1600 1200" role="img" aria-label="Illustration de démonstration — comptoir et habillage inox">
+  <defs>
+    <linearGradient id="c-wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#272D33"/>
+      <stop offset="1" stop-color="#1B1F24"/>
+    </linearGradient>
+    <linearGradient id="c-top" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#D7DEDD"/>
+      <stop offset="0.25" stop-color="#8D9C9A"/>
+      <stop offset="0.5" stop-color="#C2CBCA"/>
+      <stop offset="0.75" stop-color="#778684"/>
+      <stop offset="1" stop-color="#B7C1C0"/>
+    </linearGradient>
+    <linearGradient id="c-front" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9AA8A6"/>
+      <stop offset="0.5" stop-color="#6E7D7B"/>
+      <stop offset="1" stop-color="#4A5654"/>
+    </linearGradient>
+    <linearGradient id="c-panel" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#778684"/>
+      <stop offset="0.3" stop-color="#B7C1C0"/>
+      <stop offset="0.7" stop-color="#8D9C9A"/>
+      <stop offset="1" stop-color="#5F6E6C"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="1200" fill="url(#c-wall)"/>
+
+  <!-- Sol béton ciré -->
+  <rect y="960" width="1600" height="240" fill="#262B30"/>
+  <line x1="0" y1="960" x2="1600" y2="960" stroke="#39424A" stroke-width="3"/>
+
+  <!-- Habillage mural en tôles inox (joints continus) -->
+  <g>
+    <rect x="1000" y="140" width="520" height="820" fill="#20262B"/>
+    <rect x="1020" y="160" width="480" height="360" fill="url(#c-panel)"/>
+    <rect x="1020" y="540" width="480" height="180" fill="url(#c-panel)" opacity="0.85"/>
+    <rect x="1020" y="740" width="480" height="180" fill="url(#c-panel)" opacity="0.7"/>
+    <!-- Joints -->
+    <g stroke="#3A4249" stroke-width="4">
+      <line x1="1020" y1="530" x2="1500" y2="530"/>
+      <line x1="1020" y1="730" x2="1500" y2="730"/>
+    </g>
+    <!-- Visées discrètes -->
+    <g fill="#5F6E6C">
+      <circle cx="1036" cy="176" r="4"/>
+      <circle cx="1484" cy="176" r="4"/>
+      <circle cx="1036" cy="546" r="4"/>
+      <circle cx="1484" cy="546" r="4"/>
+      <circle cx="1036" cy="756" r="4"/>
+      <circle cx="1484" cy="756" r="4"/>
+    </g>
+  </g>
+
+  <!-- Lettrage découpé sur habillage -->
+  <g font-family="Arial, Helvetica, sans-serif" fill="#E6ECEB" opacity="0.9">
+    <text x="1260" y="300" font-size="34" letter-spacing="10" text-anchor="middle">BHAR</text>
+    <text x="1260" y="350" font-size="34" letter-spacing="10" text-anchor="middle">INOX</text>
+  </g>
+
+  <!-- Comptoir d'accueil -->
+  <g>
+    <!-- Corps -->
+    <rect x="140" y="600" width="700" height="360" fill="url(#c-front)"/>
+    <!-- Filet lumineux horizontal (détail) -->
+    <rect x="140" y="770" width="700" height="6" fill="#1716A5" opacity="0.85"/>
+    <!-- Plateau -->
+    <rect x="110" y="570" width="760" height="34" rx="4" fill="url(#c-top)"/>
+    <!-- Retour vertical décoratif -->
+    <rect x="140" y="600" width="16" height="360" fill="#5F6E6C"/>
+    <rect x="824" y="600" width="16" height="360" fill="#5F6E6C"/>
+  </g>
+
+  <!-- Reflet du comptoir au sol -->
+  <g opacity="0.2">
+    <rect x="140" y="964" width="700" height="60" fill="#9AA8A6"/>
+  </g>
+
+  <!-- Vase design sur le comptoir -->
+  <g>
+    <path d="M420 570 q-6 -60 18 -90 q24 30 18 90 z" fill="#2A3138"/>
+    <path d="M438 480 q-40 -50 -16 -96 q44 34 16 96" fill="#44544E"/>
+    <path d="M438 480 q36 -44 20 -92 q-40 30 -20 92" fill="#3D4C47"/>
+  </g>
+
+  <!-- Suspension au-dessus du comptoir -->
+  <g>
+    <line x1="490" y1="0" x2="490" y2="210" stroke="#4A545C" stroke-width="4"/>
+    <path d="M430 210 h120 l-22 56 h-76 z" fill="#20262B" stroke="#4A545C" stroke-width="3"/>
+    <circle cx="490" cy="286" r="10" fill="#E8E4D8" opacity="0.85"/>
+  </g>
+
+  <!-- Étiquette -->
+  <g>
+    <rect x="40" y="1080" width="660" height="76" fill="#17191B" opacity="0.85"/>
+    <rect x="40" y="1080" width="6" height="76" fill="#1716A5"/>
+    <text x="76" y="1112" font-family="Arial, Helvetica, sans-serif" font-size="24" letter-spacing="4" fill="#9AA8A6">ILLUSTRATION DE DÉMONSTRATION</text>
+    <text x="76" y="1142" font-family="Arial, Helvetica, sans-serif" font-size="18" letter-spacing="2" fill="#5C6C6A">AGENCEMENT INOX — PHOTOGRAPHIE AUTHENTIQUE À FOURNIR PAR BHAR INOX</text>
+  </g>
+</svg>

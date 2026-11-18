@@ -169,7 +169,7 @@ export default function ProjectForm({ initial }: { initial?: ProjectFormValues }
             onChange={(images) => set("images", images)}
             multiple
             label="Images du projet (la première sert de couverture)"
-            hint="Téléversez depuis votre appareil : JPG, PNG, WebP ou AVIF — 10 Mo max."
+            hint="Téléversez depuis votre appareil : JPG, PNG, WebP ou AVIF — 4 Mo max."
           />
         </div>
 

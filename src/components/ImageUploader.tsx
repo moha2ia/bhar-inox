@@ -7,7 +7,7 @@ export default function ImageUploader({
   onChange,
   multiple = true,
   label = "Images",
-  hint = "JPG, PNG, WebP ou AVIF — 10 Mo maximum par image.",
+  hint = "JPG, PNG, WebP ou AVIF — 4 Mo maximum par image.",
 }: {
   value: string[];
   onChange: (next: string[]) => void;

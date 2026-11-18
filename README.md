@@ -6,58 +6,74 @@ Conforme au **Cahier des Prescriptions Spéciales** (septembre 2026) et à la ch
 
 ---
 
-## 1. Démarrage rapide (local : XAMPP + PHP + MySQL)
+## 1. Démarrage rapide (local : PostgreSQL + Next.js)
 
-Prérequis : **XAMPP** (Apache, PHP 8.2, MySQL/MariaDB) et **Node.js 20+**.
+Prérequis : **Node.js 20+** et **PostgreSQL 14+** (installé localement, via Docker, ou une base Neon gratuite).
 
-1. Ouvrir le **panneau XAMPP** et démarrer **Apache** et **MySQL**.
-2. Installer les dépendances et initialiser la base :
+1. Installer PostgreSQL (Windows) :
+
+```powershell
+winget install --id PostgreSQL.PostgreSQL.17 -e
+```
+
+2. Copier `.env.example` vers `.env.local` et renseigner au minimum :
+
+```
+DATABASE_URL=postgresql://postgres:<mot-de-passe>@127.0.0.1:5432/bhar_inox
+ADMIN_EMAIL=<email admin>
+ADMIN_PASSWORD=<mot de passe admin>
+AUTH_SECRET=<openssl rand -base64 32>
+```
+
+3. Installer les dépendances, initialiser la base et lancer le site :
 
 ```bash
 npm install
-C:\xampp\php\php.exe server/install.php   # crée la base bhar_inox, les tables et la clé API
-C:\xampp\php\php.exe server/seed.php      # importe projets, services et paramètres du site
+npm run db:setup   # crée le schéma (db/schema.sql) et importe db/seed-data.json
 npm run dev
 ```
 
-3. Ouvrir http://localhost:3000
+4. Ouvrir http://localhost:3000
 
-- **Base de données** : MySQL/MariaDB, base `bhar_inox` (projets, services, paramètres, devis, messages). Les données survivent aux redémarrages.
-- **API PHP** : le dossier `server/public` est exposé par Apache sur http://localhost/bhar-api. Un raccourci Windows (`C:\xampp\htdocs\bhar-api` → `server\public`) est nécessaire une seule fois.
-
-```powershell
-New-Item -ItemType Junction -Path C:\xampp\htdocs\bhar-api -Target <chemin-du-projet>\server\public
-```
-
-- **Photographies** : les 20 visuels d'origine sont dans `public/photos/`. Depuis l'administration (`/admin/projets`, `/admin/services`), vous pouvez **téléverser des images depuis votre appareil**, les retirer, choisir la couverture, ou encore référencer un chemin existant. Les fichiers envoyés sont enregistrés dans `public/uploads/` et leur chemin est stocké en base (`/uploads/...`).
+- **Base de données** : PostgreSQL (projets, services, paramètres, devis, messages). Les données survivent aux redémarrages.
+- **Photographies** : les 20 visuels d'origine sont dans `public/photos/`. Depuis l'administration (`/admin/projets`, `/admin/services`), vous pouvez **téléverser des images depuis votre appareil**, les retirer, choisir la couverture, ou encore référencer un chemin existant. Sans `BLOB_READ_WRITE_TOKEN`, les fichiers sont écrits dans `public/uploads/` ; avec le jeton Vercel Blob, ils sont envoyés dans le stockage objet (URL absolue en base).
 - **Administration** : http://localhost:3000/admin — identifiants définis dans `.env.local` (`ADMIN_EMAIL` / `ADMIN_PASSWORD`). Changez-les avant toute mise en ligne.
-- **Clé API** : `PHP_API_KEY` dans `.env.local` doit être identique à celle de `server/config.local.php` (générée par `install.php`). Les identifiants MySQL se trouvent dans ce même fichier, non versionné.
+- **Réinitialiser la base** : supprimer puis recréer la base `bhar_inox`, puis relancer `npm run db:setup`.
 
-## 2. Passage en production (PHP/MySQL)
+## 2. Déploiement sur Vercel
 
-1. **API PHP** : héberger le contenu de `server/public` sur un hébergement PHP 8.1+ (pdo_mysql activé) avec MySQL 5.7+/MariaDB 10.4+. Le fichier `.htaccess` fourni route toutes les requêtes vers `index.php`.
-2. **Configuration serveur** : copier `server/config.example.php` vers `server/config.local.php` (hors dépôt) et renseigner `db_host`, `db_port`, `db_name`, `db_user`, `db_pass` et `api_key`. Les variables d'environnement `BHAR_DB_*` / `BHAR_API_KEY` sont également prises en charge.
-3. **Base** : exécuter `php server/install.php` puis `php server/seed.php` sur le serveur (ou importer `server/schema.sql` via phpMyAdmin et `server/seed-data.json` manuellement).
-4. **Site Next.js** : déployer sur un hébergement Node.js 20+ puis renseigner `.env.local` / les variables de production :
+1. Pousser le dépôt sur GitHub puis importer le projet dans Vercel (framework **Next.js**, branche `main`).
+2. **Base de données** : dans Vercel → **Storage** → **Postgres** (Neon), créer une base et la connecter au projet. `DATABASE_URL` est ajoutée automatiquement aux environnements. À défaut, créer une base chez [Neon](https://neon.tech) et copier son URL **pooled**.
+3. **Images** : dans Vercel → **Storage** → **Blob**, créer un store et le connecter au projet. `BLOB_READ_WRITE_TOKEN` est ajoutée automatiquement.
+4. **Variables d'environnement** (Production) :
 
 ```
-PHP_API_URL=https://api.votredomaine.com
-PHP_API_KEY=<clé générée, identique au serveur PHP>
-AUTH_SECRET=<openssl rand -base64 32>
 ADMIN_EMAIL=admin@votredomaine.com
 ADMIN_PASSWORD=<mot de passe fort>
+AUTH_SECRET=<openssl rand -base64 32>
 NEXT_PUBLIC_SITE_URL=https://www.bhar-inox.ma
 ```
 
-5. Redémarrer (`npm run build && npm start`). Le site Next.js interroge l'API PHP en **serveur à serveur** (jamais depuis le navigateur).
-6. **Images téléversées** : elles sont écrites dans `public/uploads/` sur le serveur Node. Ce dossier doit être **persistant et accessible en écriture** (volume disque). Sur un hébergement sans disque persistant (Vercel/serverless), remplacez le stockage local par un stockage objet (S3, R2, Cloudflare Images…) ou faites pointer les uploads vers un dossier servi par PHP.
+5. **Initialiser la base distante** : récupérer l'URL Neon (`DATABASE_URL`) et l'exécuter **une seule fois** depuis votre machine :
+
+```powershell
+$env:DATABASE_URL="postgresql://...neon.tech/neondb?sslmode=require"
+npm run db:setup
+```
+
+6. **Redéployer** après l'ajout des variables (Vercel → Deployments → Redeploy). L'administration est ensuite accessible sur `https://votre-domaine/admin`.
+
+Notes :
+
+- Le build Vercel n'exécute aucune requête base : les pages sont rendues à la demande (`force-dynamic`).
+- Les images téléversées vont dans Vercel Blob ; aucun disque persistant n'est nécessaire.
+- Le dossier `server/` (ancienne API PHP/MySQL) n'est plus utilisé par l'application et peut servir de référence.
 
 ### Sécurité appliquée
 
-- API PHP protégée par une **clé secrète** (`X-Api-Key`) ; `config.local.php` est stocké hors docroot et ignoré par git.
-- Téléversements : réservés à l'admin connecté, formats **JPG/PNG/WebP/AVIF uniquement**, 10 Mo max, contrôle de la **signature binaire**, nom de fichier aléatoire (aucun chemin fourni par le client).
-- Devis et messages : créés et lus **exclusivement côté serveur** (Next.js → API PHP) ; jamais exposés au navigateur.
-- Requêtes SQL **préparées** (PDO) contre l'injection SQL ; sortie JSON échappée.
+- Téléversements : réservés à l'admin connecté, formats **JPG/PNG/WebP/AVIF uniquement**, 4 Mo max (limite des fonctions Vercel), contrôle de la **signature binaire**, nom de fichier aléatoire (aucun chemin fourni par le client).
+- Devis et messages : créés et lus **exclusivement côté serveur** ; jamais exposés au navigateur.
+- Requêtes SQL **paramétrées** (`pg` / PostgreSQL) contre l'injection SQL ; identifiants de connexion uniquement dans les variables d'environnement Vercel.
 - Sessions admin : cookie `httpOnly` signé HMAC-SHA256, expiration 8 h.
 - Formulaires : validation client **et** serveur (schéma Zod partagé), honeypot anti-spam, limitation de débit (5 req/min/IP), restrictions de type/taille des fichiers (JPG/PNG/WebP/PDF, 10 Mo, 5 fichiers max).
 - Aucune donnée personnelle dans les logs.
@@ -89,23 +105,22 @@ src/
     admin/             Tableau de bord protégé
     api/               Routes serveur Next.js (quote, contact, admin/*)
     sitemap.ts robots.ts
-  components/          UI (Hero, Reveal, ProjectCard, header, footer)
-  lib/                 data.ts (client de l'API PHP), schémas Zod, sessions, charte
-server/
-  public/              Docroot de l'API PHP (index.php, .htaccess)
-  lib/repository.php   Accès MySQL (PDO), requêtes préparées
-  schema.sql           Schéma de la base bhar_inox
+  components/          UI (Hero, Reveal, ProjectCard, header, footer, ImageUploader)
+  lib/                 db.ts (PostgreSQL), data.ts (requêtes SQL), schémas Zod, sessions, charte
+db/
+  schema.sql           Schéma PostgreSQL
   seed-data.json       Contenus de démonstration (projets, services, paramètres)
-  install.php          Création de la base + clé API
-  seed.php             Import idempotent des contenus
+scripts/
+  db-setup.mjs         Création du schéma + import idempotent (npm run db:setup)
+server/                Ancienne API PHP/MySQL (non utilisée, conservée pour référence)
 public/brand/          Logo officiel (extrait du PDF fourni, non modifié)
 public/photos/         Photographies authentiques des réalisations (20 visuels)
-public/uploads/        Images téléversées depuis l'administration (non versionnées)
+public/uploads/        Images locales (sans jeton Vercel Blob), non versionnées
 ```
 
 ## 6. Stack
 
-Next.js 15 (App Router) · React 19 · TypeScript strict · Tailwind CSS v4 · Framer Motion · PHP 8.2 (API REST maison) · MySQL/MariaDB · Zod.
+Next.js 15 (App Router) · React 19 · TypeScript strict · Tailwind CSS v4 · Framer Motion · PostgreSQL (Neon sur Vercel) · Vercel Blob · Zod.
 
 ## 7. Vérifications avant mise en ligne (extraits du CPS §16)
 

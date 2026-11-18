@@ -2,6 +2,8 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import WhatsAppButton from "@/components/WhatsAppButton";
 
+export const dynamic = "force-dynamic";
+
 export default function SiteLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {

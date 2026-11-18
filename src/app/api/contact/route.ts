@@ -58,7 +58,7 @@ export async function POST(req: Request) {
       phone,
       message,
     });
-    console.info("[contact] message enregistré dans Firebase", { from: `${name} <${email}>` });
+    console.info("[contact] message enregistré", { from: `${name} <${email}>` });
   } catch (err) {
     console.error("[contact] échec de l'enregistrement", {
       message: err instanceof Error ? err.message : "unknown",

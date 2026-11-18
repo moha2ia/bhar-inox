@@ -249,7 +249,7 @@ function ServiceEditor({
         onChange={(images) => setImage(images[0] ?? "")}
         multiple={false}
         label="Image du service"
-        hint="Téléversez depuis votre appareil : JPG, PNG, WebP ou AVIF — 10 Mo max."
+        hint="Téléversez depuis votre appareil : JPG, PNG, WebP ou AVIF — 4 Mo max."
       />
       <label className="flex cursor-pointer items-center gap-3 text-sm text-white/80">
         <input

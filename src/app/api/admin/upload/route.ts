@@ -2,11 +2,13 @@ import { NextResponse } from "next/server";
 import { randomBytes } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { put } from "@vercel/blob";
 import { checkSession } from "@/lib/admin-session";
 
 export const runtime = "nodejs";
 
-const MAX_SIZE = 10 * 1024 * 1024;
+// Limite alignée sur les fonctions Vercel (corps de requête ≈ 4,5 Mo).
+const MAX_SIZE = 4 * 1024 * 1024;
 
 const EXTENSIONS: Record<string, string> = {
   "image/jpeg": "jpg",
@@ -80,7 +82,7 @@ export async function POST(req: Request) {
   }
   if (file.size > MAX_SIZE) {
     return NextResponse.json(
-      { error: "Image trop volumineuse (10 Mo maximum)." },
+      { error: "Image trop volumineuse (4 Mo maximum)." },
       { status: 422 },
     );
   }
@@ -94,6 +96,37 @@ export async function POST(req: Request) {
   }
 
   const name = `${Date.now()}-${randomBytes(6).toString("hex")}.${ext}`;
+
+  // Vercel : stockage objet Blob (disque en lecture seule).
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    try {
+      const blob = await put(`uploads/${name}`, buffer, {
+        access: "public",
+        contentType: ext === "jpg" ? "image/jpeg" : `image/${ext}`,
+        addRandomSuffix: false,
+      });
+      return NextResponse.json({ path: blob.url, name }, { status: 201 });
+    } catch (error) {
+      console.error("[upload] stockage Blob impossible", {
+        message: error instanceof Error ? error.message : "unknown",
+      });
+      return NextResponse.json(
+        { error: "Impossible d'enregistrer l'image dans le stockage Blob." },
+        { status: 500 },
+      );
+    }
+  }
+
+  if (process.env.VERCEL) {
+    return NextResponse.json(
+      {
+        error:
+          "Stockage d'images non configuré : ajoutez BLOB_READ_WRITE_TOKEN sur Vercel.",
+      },
+      { status: 503 },
+    );
+  }
+
   const directory = path.join(process.cwd(), "public", "uploads");
 
   try {

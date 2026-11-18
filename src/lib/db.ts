@@ -15,11 +15,20 @@ declare global {
   var __bharPgPool: Pool | undefined;
 }
 
+export function getConnectionString(): string | undefined {
+  return (
+    process.env.DATABASE_URL ??
+    process.env.POSTGRES_URL ??
+    process.env.DATABASE_URL_UNPOOLED ??
+    process.env.POSTGRES_URL_NON_POOLING
+  );
+}
+
 function getPool(): Pool {
-  const connectionString = process.env.DATABASE_URL;
+  const connectionString = getConnectionString();
   if (!connectionString) {
     throw new Error(
-      "DATABASE_URL manquant. Configurez PostgreSQL en local ou une base Neon sur Vercel.",
+      "Connexion base de données manquante. Définissez DATABASE_URL (Neon) ou connectez Vercel Postgres au projet.",
     );
   }
   if (!globalThis.__bharPgPool) {

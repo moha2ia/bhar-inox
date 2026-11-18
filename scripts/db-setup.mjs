@@ -20,7 +20,11 @@ function loadEnvFile(name) {
 loadEnvFile(".env.local");
 loadEnvFile(".env");
 
-const connectionString = process.env.DATABASE_URL;
+const connectionString =
+  process.env.DATABASE_URL ??
+  process.env.POSTGRES_URL ??
+  process.env.DATABASE_URL_UNPOOLED ??
+  process.env.POSTGRES_URL_NON_POOLING;
 if (!connectionString) {
   console.error(
     "DATABASE_URL manquant. Exemple local : postgresql://postgres:postgres@127.0.0.1:5432/bhar_inox",

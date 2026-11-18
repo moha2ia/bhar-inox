@@ -34,6 +34,13 @@ logo-check/
 # documents privés de la société — jamais publiés ni versionnés
 STE INFO/
 
-# données persistantes locales (contenus + demandes de devis)
+# données persistantes locales (ancien stockage JSON, utilisé pour l'export)
 .data/
+
+# configuration locale de l'API PHP (identifiants MySQL + clé API)
+server/config.local.php
+
+# médias téléversés depuis l'administration (stockage serveur, non versionné)
+/public/uploads/*
+!/public/uploads/.gitkeep
 

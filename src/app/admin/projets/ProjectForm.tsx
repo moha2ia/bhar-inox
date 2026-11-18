@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import ImageUploader from "@/components/ImageUploader";
 
 export interface ProjectFormValues {
   id?: string;
@@ -39,7 +40,6 @@ const CATEGORIES = [
 export default function ProjectForm({ initial }: { initial?: ProjectFormValues }) {
   const router = useRouter();
   const [values, setValues] = useState<ProjectFormValues>(initial ?? EMPTY);
-  const [imageInput, setImageInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -53,13 +53,6 @@ export default function ProjectForm({ initial }: { initial?: ProjectFormValues }
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
-  }
-
-  function addImage() {
-    const path = imageInput.trim();
-    if (!path) return;
-    set("images", [...values.images, path]);
-    setImageInput("");
   }
 
   async function onSubmit(e: FormEvent) {
@@ -171,40 +164,13 @@ export default function ProjectForm({ initial }: { initial?: ProjectFormValues }
         </div>
 
         <div className="sm:col-span-2">
-          <span className="field-label !text-steel-light">
-            Images (chemins /photos/… ou URLs Firebase Storage)
-          </span>
-          <div className="flex gap-2">
-            <input
-              className="field !border-line-dark !bg-charcoal !text-white"
-              value={imageInput}
-              onChange={(e) => setImageInput(e.target.value)}
-              placeholder="/visuels/steel-1.svg"
-              aria-label="Chemin d'image"
-            />
-            <button type="button" onClick={addImage} className="btn btn-outline-light shrink-0 !px-4 !py-2 text-sm">
-              Ajouter
-            </button>
-          </div>
-          {values.images.length > 0 && (
-            <ul className="mt-3 space-y-2">
-              {values.images.map((img, i) => (
-                <li
-                  key={`${img}-${i}`}
-                  className="flex items-center justify-between border border-line-dark px-3 py-2 text-sm"
-                >
-                  <span className="truncate font-mono text-xs text-white/80">{img}</span>
-                  <button
-                    type="button"
-                    onClick={() => set("images", values.images.filter((_, j) => j !== i))}
-                    className="ml-4 shrink-0 text-xs font-semibold text-white/50 hover:text-white"
-                  >
-                    Retirer
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
+          <ImageUploader
+            value={values.images}
+            onChange={(images) => set("images", images)}
+            multiple
+            label="Images du projet (la première sert de couverture)"
+            hint="Téléversez depuis votre appareil : JPG, PNG, WebP ou AVIF — 10 Mo max."
+          />
         </div>
 
         <label className="flex cursor-pointer items-center gap-3 text-sm text-white/80">

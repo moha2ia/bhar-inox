@@ -6,46 +6,58 @@ Conforme au **Cahier des Prescriptions Spéciales** (septembre 2026) et à la ch
 
 ---
 
-## 1. Démarrage rapide (édition finale)
+## 1. Démarrage rapide (local : XAMPP + PHP + MySQL)
+
+Prérequis : **XAMPP** (Apache, PHP 8.2, MySQL/MariaDB) et **Node.js 20+**.
+
+1. Ouvrir le **panneau XAMPP** et démarrer **Apache** et **MySQL**.
+2. Installer les dépendances et initialiser la base :
 
 ```bash
 npm install
+C:\xampp\php\php.exe server/install.php   # crée la base bhar_inox, les tables et la clé API
+C:\xampp\php\php.exe server/seed.php      # importe projets, services et paramètres du site
 npm run dev
 ```
 
-Ouvrir http://localhost:3000
+3. Ouvrir http://localhost:3000
 
-- **Stockage persistant local** : contenus et demandes de devis enregistrés dans `.data/data.json` (hors dépôt git) — rien n'est perdu au redémarrage.
+- **Base de données** : MySQL/MariaDB, base `bhar_inox` (projets, services, paramètres, devis, messages). Les données survivent aux redémarrages.
+- **API PHP** : le dossier `server/public` est exposé par Apache sur http://localhost/bhar-api. Un raccourci Windows (`C:\xampp\htdocs\bhar-api` → `server\public`) est nécessaire une seule fois.
+
+```powershell
+New-Item -ItemType Junction -Path C:\xampp\htdocs\bhar-api -Target <chemin-du-projet>\server\public
+```
+
+- **Photographies** : les 20 visuels d'origine sont dans `public/photos/`. Depuis l'administration (`/admin/projets`, `/admin/services`), vous pouvez **téléverser des images depuis votre appareil**, les retirer, choisir la couverture, ou encore référencer un chemin existant. Les fichiers envoyés sont enregistrés dans `public/uploads/` et leur chemin est stocké en base (`/uploads/...`).
 - **Administration** : http://localhost:3000/admin — identifiants définis dans `.env.local` (`ADMIN_EMAIL` / `ADMIN_PASSWORD`). Changez-les avant toute mise en ligne.
-- Sans configuration supplémentaire, l'application est complète et fonctionnelle ; Firebase est optionnel (voir §2).
+- **Clé API** : `PHP_API_KEY` dans `.env.local` doit être identique à celle de `server/config.local.php` (générée par `install.php`). Les identifiants MySQL se trouvent dans ce même fichier, non versionné.
 
-> **Photographies** : les 20 visuels de réalisations fournis par BHAR INOX sont intégrés dans `public/photos/` (portfolio, services, hero, page À propos). Toute nouvelle photo peut être ajoutée au même endroit puis associée au projet correspondant depuis l'administration (`/admin/projets`).
+## 2. Passage en production (PHP/MySQL)
 
-## 2. Passage en production (Firebase)
-
-1. **Créer un projet Firebase** : https://console.firebase.google.com → Ajouter un projet.
-2. **Créer une base Firestore** : Firestore Database → Créer une base (mode production).
-3. **Générer la clé de compte de service** : Paramètres du projet → Comptes de service → Générer une nouvelle clé privée (JSON).
-4. **Renseigner `.env.local`** (voir `.env.example`) :
+1. **API PHP** : héberger le contenu de `server/public` sur un hébergement PHP 8.1+ (pdo_mysql activé) avec MySQL 5.7+/MariaDB 10.4+. Le fichier `.htaccess` fourni route toutes les requêtes vers `index.php`.
+2. **Configuration serveur** : copier `server/config.example.php` vers `server/config.local.php` (hors dépôt) et renseigner `db_host`, `db_port`, `db_name`, `db_user`, `db_pass` et `api_key`. Les variables d'environnement `BHAR_DB_*` / `BHAR_API_KEY` sont également prises en charge.
+3. **Base** : exécuter `php server/install.php` puis `php server/seed.php` sur le serveur (ou importer `server/schema.sql` via phpMyAdmin et `server/seed-data.json` manuellement).
+4. **Site Next.js** : déployer sur un hébergement Node.js 20+ puis renseigner `.env.local` / les variables de production :
 
 ```
-FIREBASE_PROJECT_ID=<id-du-projet>
-FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@<projet>.iam.gserviceaccount.com
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+PHP_API_URL=https://api.votredomaine.com
+PHP_API_KEY=<clé générée, identique au serveur PHP>
 AUTH_SECRET=<openssl rand -base64 32>
 ADMIN_EMAIL=admin@votredomaine.com
 ADMIN_PASSWORD=<mot de passe fort>
 NEXT_PUBLIC_SITE_URL=https://www.bhar-inox.ma
 ```
 
-5. **Déployer les règles de sécurité** : `firebase/firestore.rules` (lecture publique des contenus publiés, tout le reste serveur uniquement) via la console Firebase → Firestore → Règles, ou `firebase deploy --only firestore:rules`.
-6. Redémarrer (`npm run build && npm start`). La couche de données bascule automatiquement de `.data/data.json` vers Firestore. Les collections (`projects`, `services`, `site_settings`, `quote_requests`, `quote_files`, `counters`) sont créées à la première écriture ; les paramètres du site sont amorcés automatiquement.
+5. Redémarrer (`npm run build && npm start`). Le site Next.js interroge l'API PHP en **serveur à serveur** (jamais depuis le navigateur).
+6. **Images téléversées** : elles sont écrites dans `public/uploads/` sur le serveur Node. Ce dossier doit être **persistant et accessible en écriture** (volume disque). Sur un hébergement sans disque persistant (Vercel/serverless), remplacez le stockage local par un stockage objet (S3, R2, Cloudflare Images…) ou faites pointer les uploads vers un dossier servi par PHP.
 
 ### Sécurité appliquée
 
-- Règles Firestore strictes (`firebase/firestore.rules`) : lecture publique des contenus **publiés uniquement** ; aucune écriture client — toutes les écritures passent par le SDK Admin côté serveur.
-- Devis : créés et lus **exclusivement côté serveur** (`/api/quote`, `/admin/*`) ; jamais exposés au client.
-- Clé de compte de service Firebase utilisée **exclusivement côté serveur** (`src/lib/data.ts`, import `server-only`).
+- API PHP protégée par une **clé secrète** (`X-Api-Key`) ; `config.local.php` est stocké hors docroot et ignoré par git.
+- Téléversements : réservés à l'admin connecté, formats **JPG/PNG/WebP/AVIF uniquement**, 10 Mo max, contrôle de la **signature binaire**, nom de fichier aléatoire (aucun chemin fourni par le client).
+- Devis et messages : créés et lus **exclusivement côté serveur** (Next.js → API PHP) ; jamais exposés au navigateur.
+- Requêtes SQL **préparées** (PDO) contre l'injection SQL ; sortie JSON échappée.
 - Sessions admin : cookie `httpOnly` signé HMAC-SHA256, expiration 8 h.
 - Formulaires : validation client **et** serveur (schéma Zod partagé), honeypot anti-spam, limitation de débit (5 req/min/IP), restrictions de type/taille des fichiers (JPG/PNG/WebP/PDF, 10 Mo, 5 fichiers max).
 - Aucune donnée personnelle dans les logs.
@@ -64,8 +76,8 @@ Le module `src/lib/notify.ts` envoie une confirmation au client et une notificat
 |---|---|---|
 | Vue d'ensemble | `/admin` | Statistiques, demandes récentes |
 | Devis | `/admin/devis` | Recherche, filtre par statut, tri par date, détail, changement de statut (Nouveau → En cours → Devis envoyé → Accepté / Refusé → Archivé) |
-| Projets | `/admin/projets` | Créer, modifier, publier/dépublier, ordonner, supprimer (avec confirmation) |
-| Services | `/admin/services` | Créer, modifier, ordonner, publier, supprimer |
+| Projets | `/admin/projets` | Créer, modifier, publier/dépublier, ordonner, supprimer (avec confirmation), téléverser/retirer des images, choisir la couverture |
+| Services | `/admin/services` | Créer, modifier, ordonner, publier, supprimer, téléverser/remplacer l'image |
 | Contenu & SEO | `/admin/parametres` | Hero, À propos, coordonnées, horaires, métadonnées SEO |
 
 ## 5. Structure du projet
@@ -75,18 +87,25 @@ src/
   app/
     (site)/            Pages publiques (accueil, services, réalisations, à-propos, devis, contact, légal)
     admin/             Tableau de bord protégé
-    api/               Routes serveur (quote, contact, admin/*)
+    api/               Routes serveur Next.js (quote, contact, admin/*)
     sitemap.ts robots.ts
   components/          UI (Hero, Reveal, ProjectCard, header, footer)
-  lib/                 data.ts (stockage local persistant ou Firebase/Firestore), schémas Zod, sessions, charte
-firebase/             Règles de sécurité Firestore
+  lib/                 data.ts (client de l'API PHP), schémas Zod, sessions, charte
+server/
+  public/              Docroot de l'API PHP (index.php, .htaccess)
+  lib/repository.php   Accès MySQL (PDO), requêtes préparées
+  schema.sql           Schéma de la base bhar_inox
+  seed-data.json       Contenus de démonstration (projets, services, paramètres)
+  install.php          Création de la base + clé API
+  seed.php             Import idempotent des contenus
 public/brand/          Logo officiel (extrait du PDF fourni, non modifié)
 public/photos/         Photographies authentiques des réalisations (20 visuels)
+public/uploads/        Images téléversées depuis l'administration (non versionnées)
 ```
 
 ## 6. Stack
 
-Next.js 15 (App Router) · React 19 · TypeScript strict · Tailwind CSS v4 · Framer Motion · Firebase (Firestore) · Zod.
+Next.js 15 (App Router) · React 19 · TypeScript strict · Tailwind CSS v4 · Framer Motion · PHP 8.2 (API REST maison) · MySQL/MariaDB · Zod.
 
 ## 7. Vérifications avant mise en ligne (extraits du CPS §16)
 

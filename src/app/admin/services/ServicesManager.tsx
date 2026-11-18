@@ -2,11 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import ImageUploader from "@/components/ImageUploader";
 
 interface Row {
   id: string;
   name: string;
   description: string;
+  image: string | null;
   sort_order: number;
   published: boolean;
 }
@@ -96,6 +98,19 @@ export default function ServicesManager({ services: initial }: { services: Row[]
           ) : (
             <li key={s.id} className="bg-charcoal-soft/30 px-5 py-4">
               <div className="flex flex-wrap items-center gap-3">
+                {s.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={s.image}
+                    alt=""
+                    loading="lazy"
+                    className="h-12 w-16 shrink-0 border border-line-dark object-cover"
+                  />
+                ) : (
+                  <span className="flex h-12 w-16 shrink-0 items-center justify-center border border-line-dark text-[0.6rem] text-white/30">
+                    Sans image
+                  </span>
+                )}
                 <span className="font-mono text-xs text-steel-light">
                   {String(s.sort_order).padStart(2, "0")}
                 </span>
@@ -177,6 +192,7 @@ function ServiceEditor({
 }) {
   const [name, setName] = useState(initial?.name ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
+  const [image, setImage] = useState(initial?.image ?? "");
   const [sort_order, setOrder] = useState(initial?.sort_order ?? initial?.sort_order ?? 1);
   const [published, setPublished] = useState(initial?.published ?? false);
 
@@ -184,7 +200,7 @@ function ServiceEditor({
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        onSave({ name, description, sort_order, published });
+        onSave({ name, description, image: image || null, sort_order, published });
       }}
       className="space-y-4"
     >
@@ -228,6 +244,13 @@ function ServiceEditor({
           onChange={(e) => setDescription(e.target.value)}
         />
       </div>
+      <ImageUploader
+        value={image ? [image] : []}
+        onChange={(images) => setImage(images[0] ?? "")}
+        multiple={false}
+        label="Image du service"
+        hint="Téléversez depuis votre appareil : JPG, PNG, WebP ou AVIF — 10 Mo max."
+      />
       <label className="flex cursor-pointer items-center gap-3 text-sm text-white/80">
         <input
           type="checkbox"

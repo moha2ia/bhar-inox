@@ -1,0 +1,182 @@
+{
+    "projects": [
+        {
+            "id": "p1",
+            "slug": "porte-dentree-residence",
+            "title": "Portes d'entrée inox & verre",
+            "description": "Portes d'entrée en acier inoxydable et verre, modèles pleins ou vitrés, fabriquées sur mesure en atelier et posées avec cadrage et quincaillerie adaptés. Finition brossée ou polie, serrures de sécurité en option.",
+            "category": "Portes",
+            "location": "Meknès",
+            "images": [
+                "/photos/WA0047.jpg",
+                "/photos/WA0051.jpg"
+            ],
+            "sort_order": 1,
+            "published": true,
+            "created_at": "2026-09-01T09:00:00Z"
+        },
+        {
+            "id": "p2",
+            "slug": "garde-corps-terrasse",
+            "title": "Garde-corps extérieurs & balcons",
+            "description": "Garde-corps en tubes inox pour terrasses, balcons et façades : lisses main-courante, remplissage à barreaux ou panneaux, fixations scellées ou à plaque. Conçu pour résister aux intempéries.",
+            "category": "Garde-corps",
+            "location": "Meknès",
+            "images": [
+                "/photos/WA0050.jpg",
+                "/photos/WA0063.jpg",
+                "/photos/WA0060.jpg"
+            ],
+            "sort_order": 2,
+            "published": true,
+            "created_at": "2026-09-02T09:00:00Z"
+        },
+        {
+            "id": "p3",
+            "slug": "verriere-atelier",
+            "title": "Verrères & parois vitrées",
+            "description": "Verrères d'atelier et parois vitrées à structure inox fine : profilés à section réduite, vitrage feuilleté ou trempé, joints continus. Lumière maximale, isolation préservée.",
+            "category": "Verrières",
+            "location": "Meknès",
+            "images": [
+                "/photos/WA0048.jpg",
+                "/photos/WA0067.jpg"
+            ],
+            "sort_order": 3,
+            "published": true,
+            "created_at": "2026-09-03T09:00:00Z"
+        },
+        {
+            "id": "p4",
+            "slug": "cage-escalier-balustrade",
+            "title": "Balustrades de cage d'escalier",
+            "description": "Balustrades intérieures pour cages d'escalier : lisses polies miroir, barreaux verticaux ou câbles tendus, volutes décoratives sur demande. Chaque modèle est ajusté au relevé exact de l'escalier.",
+            "category": "Garde-corps",
+            "location": "Meknès",
+            "images": [
+                "/photos/WA0057.jpg",
+                "/photos/WA0055.jpg",
+                "/photos/WA0059.jpg",
+                "/photos/WA0054.jpg"
+            ],
+            "sort_order": 4,
+            "published": true,
+            "created_at": "2026-09-04T09:00:00Z"
+        },
+        {
+            "id": "p5",
+            "slug": "porte-fenetre-alu-look",
+            "title": "Fenêtres & grilles de défense",
+            "description": "Fenêtres à ossature inox, châssis fixes et ouvrants, grilles de défense pour portes et fenêtres. Quincaillerie adaptée au poids, finitions assorties à la menuiserie existante.",
+            "category": "Fenêtres",
+            "location": "Meknès",
+            "images": [
+                "/photos/WA0062.jpg",
+                "/photos/WA0049.jpg"
+            ],
+            "sort_order": 5,
+            "published": true,
+            "created_at": "2026-09-05T09:00:00Z"
+        },
+        {
+            "id": "p6",
+            "slug": "chantier-pose-sur-site",
+            "title": "Fabrication & pose sur site",
+            "description": "De l'atelier au chantier : fabrication sur plans, livraison et pose par nos équipes, réglages et finitions sur site. Un interlocuteur unique du relevé initial à la remise de l'ouvrage.",
+            "category": "Agencement",
+            "location": "Meknès",
+            "images": [
+                "/photos/WA0056.jpg",
+                "/photos/WA0066.jpg",
+                "/photos/WA0065.jpg"
+            ],
+            "sort_order": 6,
+            "published": true,
+            "created_at": "2026-09-06T09:00:00Z"
+        },
+        {
+            "id": "p7",
+            "slug": "escaliers-decoration-inox",
+            "title": "Escaliers & motifs décoratifs",
+            "description": "Garde-corps à motifs décoratifs : volutes, éventails et courbes sur mesure pour escaliers d'intérieur. Le métal travaillé comme un élément de design, pas seulement de sécurité.",
+            "category": "Garde-corps",
+            "location": "Meknès",
+            "images": [
+                "/photos/WA0064.jpg",
+                "/photos/WA0053.jpg",
+                "/photos/WA0069.jpg",
+                "/photos/WA0058.jpg"
+            ],
+            "sort_order": 7,
+            "published": true,
+            "created_at": "2026-09-07T09:00:00Z"
+        }
+    ],
+    "services": [
+        {
+            "id": "s1",
+            "name": "Portes & portes-fenêtres",
+            "description": "Portes d'entrée, portes-fenêtres et portes techniques en acier inoxydable, conçues sur mesure, fabriquées en atelier et posées par nos équipes.",
+            "image": "/photos/WA0047.jpg",
+            "sort_order": 1,
+            "published": true
+        },
+        {
+            "id": "s2",
+            "name": "Fenêtres & ouvrants",
+            "description": "Fenêtres fixes et ouvrants, verrières et châssis sur mesure, avec quincaillerie adaptée au poids et à l'usage.",
+            "image": "/photos/WA0048.jpg",
+            "sort_order": 2,
+            "published": true
+        },
+        {
+            "id": "s3",
+            "name": "Garde-corps & balustrades",
+            "description": "Garde-corps à barreaux verticaux, lisses inox, câbles tendus ou panneaux verre — pour intérieurs, terrasses et escaliers.",
+            "image": "/photos/WA0057.jpg",
+            "sort_order": 3,
+            "published": true
+        },
+        {
+            "id": "s4",
+            "name": "Agencement & mobilier",
+            "description": "Habillages, comptoirs, niches, mobilier technique et éléments décoratifs en tôle ou profilés inox.",
+            "image": "/photos/WA0065.jpg",
+            "sort_order": 4,
+            "published": true
+        },
+        {
+            "id": "s5",
+            "name": "Clôtures & portails",
+            "description": "Portails, clôtures et protection périmétrique en inox, adaptés aux contraintes extérieures et aux accès automatisés.",
+            "image": "/photos/WA0050.jpg",
+            "sort_order": 5,
+            "published": true
+        },
+        {
+            "id": "s6",
+            "name": "Maintenance & rénovation",
+            "description": "Réglage, réparation, remplacement d'ouvrages existants et remise en état des finitions (décapage, passivation, polissage).",
+            "image": "/photos/WA0056.jpg",
+            "sort_order": 6,
+            "published": true
+        }
+    ],
+    "settings": {
+        "hero_title": "L'inox, façonné sur mesure.",
+        "hero_subtitle": "Menuiserie inox sur mesure : conception, fabrication et pose d'ouvrages en acier inoxydable pour particuliers, architectes et professionnels.",
+        "about_intro": "BHAR INOX est l'identité commerciale de la société BHAR INO MAR SARL, immatriculée au registre du commerce de Meknès (N° 54737). L'entreprise est spécialisée dans la conception, la fabrication et la pose de menuiseries en inox, aluminium et verre : portes, fenêtres, garde-corps, verrières et agencements sur mesure.",
+        "phone": "+212 663-436992 / +212 612-619924",
+        "email": "contact@bhar-inox.ma",
+        "address": "Im. 2, Mag. 1, Lot Arryan Bab Bettioui, Meknès",
+        "hours": "Lun – Sam : 08h30 – 19h00",
+        "seo_title": "BHAR INOX — Menuiserie inox sur mesure",
+        "seo_description": "Portes, fenêtres, garde-corps et agencements en acier inoxydable, fabriqués sur mesure avec précision.",
+        "map_lat": 33.86772537231445,
+        "map_lng": -5.565772533416748,
+        "map_zoom": 16
+    },
+    "quotes": [],
+    "messages": [],
+    "files": []
+}

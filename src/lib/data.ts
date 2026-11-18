@@ -1,11 +1,4 @@
 import "server-only";
-import {
-  cert,
-  getApps,
-  initializeApp,
-  type AppOptions,
-} from "firebase-admin/app";
-import { getFirestore, type Firestore } from "firebase-admin/firestore";
 import type {
   Project,
   Service,
@@ -17,91 +10,99 @@ import {
   QUOTE_STATUS_ORDER,
   type QuoteStatus as StatusType,
 } from "./types";
-import * as store from "./store";
 
 /* ============================================================
-   Couche de données — BHAR INOX (édition finale)
-   - Firebase configuré (variables d'environnement) : Firestore,
-     accès serveur via le SDK Admin (firebase-admin).
-   - Sinon : stockage local persistant (.data/data.json) — les
-     contenus et les demandes de devis survivent aux redémarrages.
+   Couche de données — BHAR INOX
+   Toutes les lectures/écritures passent par l'API PHP
+   (server/public/index.php) adossée à MySQL/MariaDB.
+   Configuration : PHP_API_URL et PHP_API_KEY (.env.local).
    ============================================================ */
 
-const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID ?? "";
-const FIREBASE_CLIENT_EMAIL = process.env.FIREBASE_CLIENT_EMAIL ?? "";
-const FIREBASE_PRIVATE_KEY = (
-  process.env.FIREBASE_PRIVATE_KEY ?? ""
-).replace(/\\n/g, "\n");
+const API_URL = (process.env.PHP_API_URL ?? "http://127.0.0.1/bhar-api").replace(/\/+$/, "");
+const API_KEY = process.env.PHP_API_KEY ?? "";
 
-export const USE_FIREBASE = Boolean(
-  FIREBASE_PROJECT_ID && FIREBASE_CLIENT_EMAIL && FIREBASE_PRIVATE_KEY,
-);
+async function api<T>(
+  path: string,
+  init?: { method?: string; body?: unknown },
+): Promise<T> {
+  const hasBody = init?.body !== undefined;
 
-let firestore: Firestore | null = null;
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      method: init?.method ?? "GET",
+      headers: {
+        Accept: "application/json",
+        "X-Api-Key": API_KEY,
+        ...(hasBody ? { "Content-Type": "application/json; charset=utf-8" } : {}),
+      },
+      body: hasBody ? JSON.stringify(init.body) : undefined,
+      cache: "no-store",
+      signal: AbortSignal.timeout(10_000),
+    });
+  } catch (error) {
+    // Next.js signale les pages dynamiques via une erreur interne :
+    // elle doit remonter telle quelle, sinon le build la confond avec
+    // une panne de l'API.
+    const digest = (error as { digest?: unknown } | null)?.digest;
+    if (
+      error instanceof Error &&
+      (error.name === "DynamicServerError" ||
+        (typeof digest === "string" && digest.startsWith("DYNAMIC_SERVER_USAGE")))
+    ) {
+      throw error;
+    }
 
-export function getDb(): Firestore {
-  if (!firestore) {
-    if (!USE_FIREBASE)
-      throw new Error("Firebase non configuré — stockage local utilisé.");
-    const options: AppOptions = {
-      credential: cert({
-        projectId: FIREBASE_PROJECT_ID,
-        clientEmail: FIREBASE_CLIENT_EMAIL,
-        privateKey: FIREBASE_PRIVATE_KEY,
-      }),
-      projectId: FIREBASE_PROJECT_ID,
-    };
-    const existing = getApps().find((a) => a.name === "bhar-inox");
-    firestore = existing
-      ? getFirestore(existing)
-      : getFirestore(initializeApp(options, "bhar-inox"));
+    throw new Error(
+      `API PHP/MySQL injoignable (${API_URL}). Vérifiez qu'Apache et MySQL sont démarrés.`,
+    );
   }
-  return firestore;
+
+  const text = await response.text();
+  let data: unknown = null;
+  if (text.trim() !== "") {
+    try {
+      data = JSON.parse(text) as unknown;
+    } catch {
+      data = null;
+    }
+  }
+
+  if (!response.ok) {
+    const message =
+      data && typeof data === "object" && "error" in data
+        ? String((data as { error: unknown }).error)
+        : `API PHP ${response.status}`;
+    throw new Error(message);
+  }
+
+  return data as T;
 }
 
-const COL_PROJECTS = "projects";
-const COL_SERVICES = "services";
-const COL_SETTINGS = "site_settings";
-const COL_QUOTES = "quote_requests";
-const COL_QUOTE_FILES = "quote_files";
-const COL_MESSAGES = "contact_messages";
-const SETTINGS_DOC_ID = "default";
-
 /* ------------------------------------------------------------
-   API publique du module (server-side)
+   Contenus publics
    ------------------------------------------------------------ */
 
 export async function listProjects(opts?: {
   publishedOnly?: boolean;
   category?: string;
 }): Promise<Project[]> {
-  if (!USE_FIREBASE) {
-    return store.listProjects(opts);
+  const params = new URLSearchParams();
+  if (opts?.publishedOnly === false) params.set("published", "0");
+  if (opts?.category && opts.category !== "Toutes") {
+    params.set("category", opts.category);
   }
-  const colRef = getDb().collection(COL_PROJECTS);
-  const countSnap = await colRef.limit(1).get();
-  if (countSnap.empty) {
-    const seedProjects = store.listProjects({ publishedOnly: false });
-    const batch = getDb().batch();
-    for (const p of seedProjects) {
-      batch.set(colRef.doc(p.id), p);
-    }
-    await batch.commit();
-  }
-  let q: FirebaseFirestore.Query = colRef;
-  if (opts?.publishedOnly !== false) q = q.where("published", "==", true);
-  if (opts?.category && opts.category !== "Toutes")
-    q = q.where("category", "==", opts.category);
-  const snap = await q.get();
-  const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Project);
-  return items.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  const query = params.toString();
+  return api<Project[]>(`/projects${query ? `?${query}` : ""}`);
 }
 
 export async function getProjectBySlug(
   slug: string,
   opts?: { publishedOnly?: boolean },
 ): Promise<Project | null> {
-  const all = await listProjects({ publishedOnly: opts?.publishedOnly !== false });
+  const all = await listProjects({
+    publishedOnly: opts?.publishedOnly !== false,
+  });
   return all.find((p) => p.slug === slug) ?? null;
 }
 
@@ -115,96 +116,25 @@ export async function listCategories(): Promise<string[]> {
 export async function listServices(opts?: {
   publishedOnly?: boolean;
 }): Promise<Service[]> {
-  if (!USE_FIREBASE) {
-    return store.listServices(opts);
-  }
-  const colRef = getDb().collection(COL_SERVICES);
-  const countSnap = await colRef.limit(1).get();
-  if (countSnap.empty) {
-    const seedServices = store.listServices({ publishedOnly: false });
-    const batch = getDb().batch();
-    for (const s of seedServices) {
-      batch.set(colRef.doc(s.id), s);
-    }
-    await batch.commit();
-  }
-  let q: FirebaseFirestore.Query = colRef;
-  if (opts?.publishedOnly !== false) q = q.where("published", "==", true);
-  const snap = await q.get();
-  const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Service);
-  return items.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  const query = opts?.publishedOnly === false ? "?published=0" : "";
+  return api<Service[]>(`/services${query}`);
 }
 
 export async function getSiteSettings(): Promise<SiteSettings> {
-  if (!USE_FIREBASE) {
-    return store.getSettings();
-  }
-  const doc = await getDb()
-    .collection(COL_SETTINGS)
-    .doc(SETTINGS_DOC_ID)
-    .get();
-  if (!doc.exists) {
-    // Première exécution : amorcer avec les valeurs locales par défaut.
-    const seed = store.getSettings();
-    await doc.ref.set(seed);
-    return seed;
-  }
-  return doc.data() as SiteSettings;
+  return api<SiteSettings>("/settings");
 }
+
+/* ------------------------------------------------------------
+   Demandes de devis
+   ------------------------------------------------------------ */
 
 export async function createQuoteRequest(input: {
   draft: Record<string, unknown>;
   files: { name: string; size: number; type: string }[];
 }): Promise<{ reference: string }> {
-  if (!USE_FIREBASE) {
-    return store.addQuote(input.draft, input.files);
-  }
-  const db = getDb();
-  const d = input.draft;
-  const reference = await nextQuoteReference(db);
-  await db.runTransaction(async (tx) => {
-    tx.set(db.collection(COL_QUOTES).doc(), {
-      reference,
-      project_type: String(d.project_type ?? ""),
-      description: String(d.description ?? ""),
-      location: String(d.location ?? ""),
-      dimensions: d.dimensions ? String(d.dimensions) : null,
-      quantity: d.quantity ? Number(d.quantity) : null,
-      finish: d.finish ? String(d.finish) : null,
-      budget: d.budget ? String(d.budget) : null,
-      deadline: d.deadline ? String(d.deadline) : null,
-      full_name: String(d.full_name ?? ""),
-      company: d.company ? String(d.company) : null,
-      phone: String(d.phone ?? ""),
-      email: String(d.email ?? ""),
-      status: "nouveau",
-      created_at: new Date().toISOString(),
-    });
-    // Métadonnées des fichiers (les binaires ne sont pas stockés)
-    for (const f of input.files) {
-      tx.set(db.collection(COL_QUOTE_FILES).doc(), {
-        quote_reference: reference,
-        file_name: f.name,
-        file_size: f.size,
-        file_type: f.type,
-      });
-    }
-  });
-  return { reference };
-}
-
-/** Référence unique BI-AAAA-#### (compteur transactionnel Firestore). */
-async function nextQuoteReference(db: Firestore): Promise<string> {
-  const year = new Date().getFullYear();
-  const prefix = `BI-${year}-`;
-  const counterId = `quote_counter_${year}`;
-  const counterRef = db.collection("counters").doc(counterId);
-  return db.runTransaction(async (tx) => {
-    const snap = await tx.get(counterRef);
-    const current = snap.exists ? Number(snap.data()?.value ?? 0) : 0;
-    const next = current + 1;
-    tx.set(counterRef, { value: next }, { merge: true });
-    return `${prefix}${String(next).padStart(4, "0")}`;
+  return api<{ reference: string }>("/quotes", {
+    method: "POST",
+    body: { draft: input.draft, files: input.files },
   });
 }
 
@@ -212,51 +142,28 @@ export async function listQuoteRequests(opts?: {
   status?: StatusType;
   search?: string;
 }): Promise<QuoteRequest[]> {
-  if (!USE_FIREBASE) {
-    return store.listQuotes(opts);
-  }
-  let q = getDb()
-    .collection(COL_QUOTES)
-    .orderBy("created_at", "desc");
-  if (opts?.status) q = q.where("status", "==", opts.status);
-  const snap = await q.get();
-  let out = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as QuoteRequest);
-  if (opts?.search) {
-    const s = opts.search.toLowerCase();
-    out = out.filter(
-      (q) =>
-        q.reference.toLowerCase().includes(s) ||
-        q.full_name.toLowerCase().includes(s) ||
-        q.email.toLowerCase().includes(s),
-    );
-  }
-  return out;
+  const params = new URLSearchParams();
+  if (opts?.status) params.set("status", opts.status);
+  if (opts?.search) params.set("search", opts.search);
+  const query = params.toString();
+  return api<QuoteRequest[]>(`/quotes${query ? `?${query}` : ""}`);
 }
 
 export async function updateQuoteStatus(
   id: string,
   status: StatusType,
 ): Promise<void> {
-  if (!USE_FIREBASE) {
-    store.updateQuoteStatus(id, status);
-    return;
-  }
-  await getDb().collection(COL_QUOTES).doc(id).update({ status });
+  await api<{ ok: boolean }>(
+    `/quotes/${encodeURIComponent(id)}/status`,
+    { method: "POST", body: { status } },
+  );
 }
 
 export async function listQuoteFiles(
   reference: string,
 ): Promise<{ file_name: string; file_size: number; file_type: string }[]> {
-  if (!USE_FIREBASE) {
-    return store.listQuoteFiles(reference);
-  }
-  const snap = await getDb()
-    .collection(COL_QUOTE_FILES)
-    .where("quote_reference", "==", reference)
-    .get();
-  return snap.docs.map(
-    (d) =>
-      d.data() as { file_name: string; file_size: number; file_type: string },
+  return api<{ file_name: string; file_size: number; file_type: string }[]>(
+    `/quote-files?reference=${encodeURIComponent(reference)}`,
   );
 }
 
@@ -270,52 +177,30 @@ export async function createContactMessage(input: {
   phone?: string | null;
   message: string;
 }): Promise<{ id: string }> {
-  if (!USE_FIREBASE) {
-    return store.addContactMessage(input);
-  }
-  const db = getDb();
-  const docRef = await db.collection(COL_MESSAGES).add({
-    name: input.name,
-    email: input.email,
-    phone: input.phone || null,
-    message: input.message,
-    read: false,
-    created_at: new Date().toISOString(),
+  return api<{ id: string }>("/messages", {
+    method: "POST",
+    body: input,
   });
-  return { id: docRef.id };
 }
 
 export async function listContactMessages(): Promise<ContactMessage[]> {
-  if (!USE_FIREBASE) {
-    return store.listContactMessages();
-  }
-  const snap = await getDb().collection(COL_MESSAGES).get();
-  const list = snap.docs.map((d) => ({
-    id: d.id,
-    ...d.data(),
-  })) as ContactMessage[];
-  return list.sort(
-    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-  );
+  return api<ContactMessage[]>("/messages");
 }
 
 export async function deleteContactMessage(id: string): Promise<void> {
-  if (!USE_FIREBASE) {
-    store.deleteContactMessage(id);
-    return;
-  }
-  await getDb().collection(COL_MESSAGES).doc(id).delete();
+  await api<{ ok: boolean }>(`/messages/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
 }
 
 export async function markContactMessageRead(
   id: string,
   read = true,
 ): Promise<void> {
-  if (!USE_FIREBASE) {
-    store.markContactMessageRead(id, read);
-    return;
-  }
-  await getDb().collection(COL_MESSAGES).doc(id).update({ read });
+  await api<{ ok: boolean }>(`/messages/${encodeURIComponent(id)}/read`, {
+    method: "POST",
+    body: { read },
+  });
 }
 
 /* ------------------------------------------------------------
@@ -329,98 +214,40 @@ export type ProjectInput = Omit<Project, "id" | "created_at"> & {
 export async function upsertProject(
   input: ProjectInput,
 ): Promise<{ id: string }> {
-  if (!USE_FIREBASE) {
-    const id = store.upsertProject({
-      ...input,
-      id: input.id,
-      images: input.images ?? [],
-    } as Project & { created_at?: string });
-    return { id };
-  }
-  const db = getDb();
-  const row = { ...input } as Record<string, unknown>;
-  // Recherche par id puis par slug (unicité, comme le schéma SQL initial)
-  let existing: FirebaseFirestore.DocumentSnapshot | null = null;
-  if (input.id) {
-    const byId = await db.collection(COL_PROJECTS).doc(input.id).get();
-    if (byId.exists) existing = byId;
-  }
-  if (!existing) {
-    const bySlug = await db
-      .collection(COL_PROJECTS)
-      .where("slug", "==", input.slug)
-      .limit(1)
-      .get();
-    if (!bySlug.empty) existing = bySlug.docs[0];
-  }
-  if (existing) {
-    await existing.ref.set(row, { merge: true });
-    return { id: existing.id };
-  }
-  const ref = await db.collection(COL_PROJECTS).add({
-    ...row,
-    created_at: new Date().toISOString(),
+  return api<{ id: string }>("/projects", {
+    method: "POST",
+    body: { ...input, images: input.images ?? [] },
   });
-  return { id: ref.id };
 }
 
 export async function deleteProject(id: string): Promise<void> {
-  if (!USE_FIREBASE) {
-    store.deleteProject(id);
-    return;
-  }
-  await getDb().collection(COL_PROJECTS).doc(id).delete();
+  await api<{ ok: boolean }>(`/projects/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
 }
 
 export async function upsertService(
   input: Omit<Service, "id"> & { id?: string },
 ): Promise<{ id: string }> {
-  if (!USE_FIREBASE) {
-    const id = store.upsertService(input as Service);
-    return { id };
-  }
-  const db = getDb();
-  // Recherche par id puis par nom (unicité, comme le schéma SQL initial)
-  let existing: FirebaseFirestore.DocumentSnapshot | null = null;
-  if (input.id) {
-    const byId = await db.collection(COL_SERVICES).doc(input.id).get();
-    if (byId.exists) existing = byId;
-  }
-  if (!existing) {
-    const byName = await db
-      .collection(COL_SERVICES)
-      .where("name", "==", input.name)
-      .limit(1)
-      .get();
-    if (!byName.empty) existing = byName.docs[0];
-  }
-  if (existing) {
-    await existing.ref.set({ ...input }, { merge: true });
-    return { id: existing.id };
-  }
-  const ref = await db.collection(COL_SERVICES).add({ ...input });
-  return { id: ref.id };
+  return api<{ id: string }>("/services", {
+    method: "POST",
+    body: input,
+  });
 }
 
 export async function deleteService(id: string): Promise<void> {
-  if (!USE_FIREBASE) {
-    store.deleteService(id);
-    return;
-  }
-  await getDb().collection(COL_SERVICES).doc(id).delete();
+  await api<{ ok: boolean }>(`/services/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
 }
 
 export async function updateSiteSettings(
   patch: Partial<SiteSettings>,
 ): Promise<void> {
-  if (!USE_FIREBASE) {
-    store.updateSettings(patch);
-    return;
-  }
-  await getDb()
-    .collection(COL_SETTINGS)
-    .doc(SETTINGS_DOC_ID)
-    .set(patch, { merge: true });
+  await api<SiteSettings>("/settings", {
+    method: "PUT",
+    body: patch,
+  });
 }
 
 export { QUOTE_STATUS_ORDER };

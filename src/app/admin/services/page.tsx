@@ -25,6 +25,7 @@ export default async function AdminServicesPage() {
           id: s.id,
           name: s.name,
           description: s.description,
+          image: s.image,
           sort_order: s.sort_order,
           published: s.published,
         }))}

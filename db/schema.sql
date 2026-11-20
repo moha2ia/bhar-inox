@@ -102,3 +102,10 @@ CREATE TABLE IF NOT EXISTS counters (
   name  text PRIMARY KEY,
   value integer NOT NULL DEFAULT 0
 );
+
+CREATE TABLE IF NOT EXISTS uploaded_images (
+  id         text PRIMARY KEY,
+  mime       text NOT NULL,
+  data       bytea NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);

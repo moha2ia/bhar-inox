@@ -1,13 +1,11 @@
 import { NextResponse } from "next/server";
-import { randomBytes } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
+import { randomBytes, randomUUID } from "node:crypto";
 import { put } from "@vercel/blob";
 import { checkSession } from "@/lib/admin-session";
 
 export const runtime = "nodejs";
 
-// Limite alignée sur les fonctions Vercel (corps de requête ≈ 4,5 Mo).
+// Limite alignée sur les fonctions serverless (corps de requête ≈ 4,5 Mo).
 const MAX_SIZE = 4 * 1024 * 1024;
 
 const EXTENSIONS: Record<string, string> = {
@@ -117,30 +115,29 @@ export async function POST(req: Request) {
     }
   }
 
-  if (process.env.VERCEL) {
-    return NextResponse.json(
-      {
-        error:
-          "Stockage d'images non configuré : ajoutez BLOB_READ_WRITE_TOKEN sur Vercel.",
-      },
-      { status: 503 },
-    );
-  }
-
-  const directory = path.join(process.cwd(), "public", "uploads");
+  // Netlify, local et autres hébergeurs : l'image est stockée dans
+  // PostgreSQL (disque serveur non persistant) et servie par /api/images.
+  const id = randomUUID();
+  const contentType = ext === "jpg" ? "image/jpeg" : `image/${ext}`;
 
   try {
-    await mkdir(directory, { recursive: true });
-    await writeFile(path.join(directory, name), buffer);
+    const { query } = await import("@/lib/db");
+    await query(
+      "INSERT INTO uploaded_images (id, mime, data) VALUES ($1, $2, $3)",
+      [id, contentType, buffer],
+    );
   } catch (error) {
-    console.error("[upload] écriture impossible", {
+    console.error("[upload] stockage en base impossible", {
       message: error instanceof Error ? error.message : "unknown",
     });
     return NextResponse.json(
-      { error: "Impossible d'enregistrer l'image sur le serveur." },
+      { error: "Impossible d'enregistrer l'image dans la base de données." },
       { status: 500 },
     );
   }
 
-  return NextResponse.json({ path: `/uploads/${name}`, name }, { status: 201 });
+  return NextResponse.json(
+    { path: `/api/images/${id}`, name },
+    { status: 201 },
+  );
 }

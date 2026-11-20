@@ -30,6 +30,9 @@ const organizationJsonLd = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://bhar-inox.vercel.app",
+  ),
   title: {
     default: "BHAR INOX — L'inox, façonné sur mesure",
     template: "%s · BHAR INOX",

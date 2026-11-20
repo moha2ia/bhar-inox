@@ -18,7 +18,18 @@ export async function POST(req: Request) {
   const email = String(body.email ?? "").trim().toLowerCase();
   const password = String(body.password ?? "");
 
-  if (!creds.password || email !== creds.email.toLowerCase() || password !== creds.password) {
+  if (!creds.password) {
+    console.error("[admin] ADMIN_PASSWORD non défini : connexion impossible.");
+    return NextResponse.json(
+      {
+        error:
+          "Administration non configurée sur le serveur : définissez ADMIN_EMAIL et ADMIN_PASSWORD dans les variables d'environnement Vercel, puis redéployez.",
+      },
+      { status: 503 },
+    );
+  }
+
+  if (email !== creds.email.toLowerCase() || password !== creds.password) {
     // Message volontairement générique
     return NextResponse.json(
       { error: "Identifiants incorrects." },
